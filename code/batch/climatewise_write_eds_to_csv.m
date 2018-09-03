@@ -19,7 +19,7 @@ if exist('EDS_WS','var')
         peril_column = [ peril_column ; 'WS' ];
        
 
-        output_filename = [output_dir filesep DFC(DFC_i).annotation_name '-WS-' scenario_name '-' sprintf("%d", year) adaptation '.csv']
+        output_filename = [output_dir filesep DFC(DFC_i).annotation_name '-WS-' scenario_name '-' sprintf("%d", year) adaptation '.csv'];
         fid = fopen(output_filename,'w'); 
         fprintf(fid,'return_period,damage\n');
         fclose(fid);
@@ -50,7 +50,7 @@ if exist('EDS_TC','var')
 
  
  
-      output_filename = [output_dir filesep DFC(DFC_i).annotation_name '-TC-' scenario_name '-' sprintf("%d", year) adaptation '.csv']
+      output_filename = [output_dir filesep DFC(DFC_i).annotation_name '-TC-' scenario_name '-' sprintf("%d", year) adaptation '.csv'];
       fid = fopen(output_filename,'w'); 
       fprintf(fid,'return_period,damage\n');
       fclose(fid);
@@ -80,7 +80,7 @@ if exist('EDS_TS','var')
       adaptation_column = [ adaptation_column ; adaptation ] ;
       peril_column = [ peril_column ; 'TS' ]; 
  
-      output_filename = [output_dir filesep DFC(DFC_i).annotation_name '-TS-' scenario_name '-' sprintf("%d", year) adaptation '.csv']
+      output_filename = [output_dir filesep DFC(DFC_i).annotation_name '-TS-' scenario_name '-' sprintf("%d", year) adaptation '.csv'];
       fid = fopen(output_filename,'w'); 
       fprintf(fid,'return_period,damage\n');
       fclose(fid);

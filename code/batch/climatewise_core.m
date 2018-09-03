@@ -150,7 +150,7 @@ Intensity_threshold_ms_TC_str=sprintf('%2.2i',Intensity_threshold_ms_TC);
 mode_str='';if process_number_of_properties,mode_str='_properties';upperylim=100;end
 Percentage_Of_Value_Flag_str='';if Percentage_Of_Value_Flag,Percentage_Of_Value_Flag_str='_pct';end
 
-entity_template=climada_entity_read(climada_global.data_dir filesep 'ClimateWise' filesep 'entity_template.xlsx','NOENCODE');
+entity_template=climada_entity_read([climada_global.data_dir filesep 'ClimateWise' filesep 'entity_template.xlsx'],'NOENCODE');
 #entity_template.assets=rmfield(entity_template.assets,'hazard');
 #entity_template.assets=rmfield(entity_template.assets,'centroid_index');
 entity_template.assets=rmfield(entity_template.assets,'Category_ID');

@@ -73,6 +73,6 @@ exposure_folder=[climada_global.data_dir filesep 'ClimateWise'];
 
 climatewise_run_mortgage
     
-climatewise_run_commercial
+#climatewise_run_commercial
 
     
