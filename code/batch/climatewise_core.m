@@ -113,34 +113,9 @@ upperylim=0.25; % vertical scale for return period plots if Percentage_Of_Value_
 if isempty(Percentage_Of_Value_Flag),Percentage_Of_Value_Flag=1;end % default=0
 %
 % force asset encoding
-force_encode=0; % default=0, since automatically detected
-%
-% define the exposure datasets, one for each bank, just lon/lat/value and
-% number_of_properties, will be inserted into a proper entity structure
-if isempty(exposure_folder),exposure_folder=[climada_global.data_dir filesep 'ClimateWise'];end
-if isempty(exposure_files)
-    exposure_files={
-        'GBR_barclays_sector_agg.xlsx' % GBR_ to indicate GBR only (speedup, must be listed first)
-        'GBR_hsbc_sector_agg.xlsx'
-        'GBR_lloyds_sector_agg.xlsx'
-        'GBR_nationwide_sector_agg.xlsx'
-        'GBR_rbs_sector_agg.xlsx'
-        'GBR_santander_sector_agg.xlsx'
-        'GBR_yorkshire_sector_agg.xlsx'
-%         '02.xlsx' % follow the global exposures
-%         '03.xlsx'
-%         '05.xlsx'
-%         '08.xlsx'
-%         '12.xlsx'
-%         '13.xlsx'
-%         '14.xlsx'
-%         '15.xlsx'
-%         '16.xlsx'
-%         '23.xlsx'
-%         '24.xlsx'
-%         '25.xlsx'
-        };
-end
+force_encode=1; % 
+
+
 %
 % admin0 shape file (to figure country exposure)
 admin0_shape_file=climada_global.map_border_file; % as we use the admin0 as in next line as default anyway
@@ -163,6 +138,7 @@ fig_ext ='png';
 %hazard_set_file=[climada_global.modules_dir filesep 'storm_europe/data/hazards' filesep 'WS_GKSS_A2.mat']; % Schwierz et al.
 %
 TC_hazard_set='GLB_0360as_TC';
+TS_hazard_set='GLB_0360as_TS';
 
 % some prep work
 % --------------
@@ -174,9 +150,9 @@ Intensity_threshold_ms_TC_str=sprintf('%2.2i',Intensity_threshold_ms_TC);
 mode_str='';if process_number_of_properties,mode_str='_properties';upperylim=100;end
 Percentage_Of_Value_Flag_str='';if Percentage_Of_Value_Flag,Percentage_Of_Value_Flag_str='_pct';end
 
-entity_template=climada_entity_read('entity_template.xlsx','NOENCODE');
-entity_template.assets=rmfield(entity_template.assets,'hazard');
-entity_template.assets=rmfield(entity_template.assets,'centroid_index');
+entity_template=climada_entity_read(climada_global.data_dir filesep 'ClimateWise' filesep 'entity_template.xlsx','NOENCODE');
+#entity_template.assets=rmfield(entity_template.assets,'hazard');
+#entity_template.assets=rmfield(entity_template.assets,'centroid_index');
 entity_template.assets=rmfield(entity_template.assets,'Category_ID');
 entity_template.assets=rmfield(entity_template.assets,'Region_ID');
 entity_template.assets=rmfield(entity_template.assets,'Value_unit');
@@ -191,16 +167,16 @@ admin0_shapes=climada_shaperead(admin0_shape_file);
 % now we start
 
 n_exposures=length(exposure_files);
-%n_exposures=2; % TEST
-clear EDS % to re-init
+clear EDS_WS % to re-init
 clear EDS_TC % to re-init
-
-n_perils=1; % default WS (Europe) only, will be set=2 if TC exposure found
+clear EDS_TS % to re-init
+clear EDS_local % to reinit
+n_perils=1; % default WS (Europe) only, will be set=3 if TC and TS exposure found
 
 if process_number_of_properties
     fprintf('importing %i exposure data sets (processing number_of_properties, threshold %s/%s m/s):\n',n_exposures,Intensity_threshold_ms_WS_str,Intensity_threshold_ms_TC_str);
 else
-    fprintf('importing %i exposure data sets (processing Value):\n',n_exposures);
+    fprintf('importing %i exposure data sets (processing replacement value):\n',n_exposures);
 end
 
 for exposure_i=1:n_exposures
@@ -217,7 +193,6 @@ for exposure_i=1:n_exposures
     
     entity_savefile=[climada_global.entities_dir filesep '_ClimateWise_' exposure_name '.mat'];
     
-    if ~exist(entity_savefile,'file')
         fprintf('\nprocessing %s:\n',exposure_name);
         
         exposure_filename=[exposure_folder filesep exposure_files{exposure_i}];
@@ -227,18 +202,21 @@ for exposure_i=1:n_exposures
         entity.assets.filename = exposure_filename;
         entity.assets.lon      = exposure_data.longitude';
         entity.assets.lat      = exposure_data.latitude';
-        if isfield(exposure_data,'total_property_value_2016_GBP')
-            entity.assets.Value    = exposure_data.total_property_value_2016_GBP'; % until 20180716
-        else
             entity.assets.Value    = exposure_data.replacement_value_gbp'; % 20180717
-        end
         
         entity.assets.Value=entity.assets.Value/entity.assets.currency_unit;
         
         % complete fields
         entity.assets.Deductible=entity.assets.Value*0;
         entity.assets.Cover=entity.assets.Value;
+    if strcmp(adaptation, '')
+      % no adaptation -- damage function 1
         entity.assets.DamageFunID=entity.assets.lon*0+1;
+    else
+      % adaptation -- damage function 2
+
+      entity.assets.DamageFunID=entity.assets.lon*0+2;
+    end
         if isfield(exposure_data,'postcode_sector')
             entity.assets.postcode_sector=exposure_data.postcode_sector';
         end
@@ -246,10 +224,7 @@ for exposure_i=1:n_exposures
         entity.assets = climada_assets_complete(entity.assets);
         
         save(entity_savefile,'entity');
-    else
-        fprintf('\nloading %s:\n',exposure_name);
-        load(entity_savefile)
-    end
+
     
     if entity_plot
         figure;climada_entity_plot(entity);
@@ -303,13 +278,17 @@ for exposure_i=1:n_exposures
                         fprintf(' not WS exposed\n');
                     end
                 else
-                    add_TC=1;n_perils=2;
+                    add_TC=1;n_perils=3;
                     fprintf(' TC exposed (%i assets hit)\n',sum(country_hit));
                 end
             end
         end % shape_i
         
-        if add_TC,hazard_set_file{end+1}=[TC_hazard_set TC_hazard_CC_ext];end
+        if add_TC
+          hazard_set_file{end+1}=[TC_hazard_set TC_hazard_CC_ext];
+          hazard_set_file{end+1}=[TS_hazard_set TS_hazard_CC_ext];
+
+        end
         
     end % figure which countries and perils to deal with
     
@@ -342,8 +321,10 @@ for exposure_i=1:n_exposures
             
             if strcmpi(hazard.peril_ID,'WS')
                 Intensity_threshold_ms=Intensity_threshold_ms_WS;
-            else
+            elseif strcmpi(hazard.peril_ID,'TC')
                 Intensity_threshold_ms=Intensity_threshold_ms_TC;
+            elseif strcmpi(hazard.peril_ID,'TS')
+                 Intensity_threshold_ms=Intensity_threshold_ms_TS;            
             end
             
             % replace damagefunctions
@@ -373,21 +354,35 @@ for exposure_i=1:n_exposures
         entity.assets.Value=entity_assets_Value;
         
         if strcmpi(hazard.peril_ID,'WS')
+            EDS_local.peril_ID='WS';
+            EDS_local.scenario_name=scenario_name;
             if hazard_i==1
-                EDS(exposure_i)=EDS_local;
+                EDS_WS(exposure_i)=EDS_local;
             else
-                EDS(exposure_i)=climada_EDS_combine(EDS(exposure_i),EDS_local); % add event sets
+                EDS_WS(exposure_i)=climada_EDS_combine(EDS_WS(exposure_i),EDS_local); % add event sets
             end
+            
         elseif strcmpi(hazard.peril_ID,'TC')
+            EDS_local.peril_ID='TC';
+            EDS_local.scenario_name=scenario_name;
             EDS_TC(exposure_i)=EDS_local;
             EDS_TC(exposure_i).annotation_name=exposure_name;
+            EDS_TC(exposure_i).scenario_name=exposure_name;
+
+        elseif strcmpi(hazard.peril_ID,'TS')
+            EDS_local.peril_ID='TS';
+            EDS_local.scenario_name=scenario_name;
+            EDS_TS(exposure_i)=EDS_local;
+            EDS_TS(exposure_i).annotation_name=exposure_name;
+            EDS_TS(exposure_i).scenario_name=exposure_name;
         end
         
     end % hazard_i
-    EDS(exposure_i).annotation_name=exposure_name;
-    %EDS(exposure_i).peril_ID='WS';
+    EDS_WS(exposure_i).annotation_name=exposure_name;
     
 end % exposure_i
+
+if plot_edfs
 
 for peril_i=1:n_perils
     
@@ -488,3 +483,5 @@ for peril_i=1:n_perils
     if peril_i==2,EDS_TC=EDS;end % as we cleaned it up etc (only valid entries)
     
 end % peril_i
+end
+
