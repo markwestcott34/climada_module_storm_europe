@@ -65,7 +65,7 @@ reference_return_period=100;
 %
 Intensity_threshold_ms_WS=35; % intensity threshold for affected in m/s for WS
 Intensity_threshold_ms_TC=55; % intensity threshold for affected in m/s for TC
-Intensity_threshold_ms_TC=0.5; % TODO ask David; TEST intensity threshold for affected in m/s for TC
+Intensity_threshold_ms_TC=0.5; % TODO ask David; TEST intensity threshold for affected in m for TS
 
 %
 exposure_folder=[climada_global.data_dir filesep 'ClimateWise'];
@@ -73,6 +73,6 @@ exposure_folder=[climada_global.data_dir filesep 'ClimateWise'];
 
 climatewise_run_mortgage
     
-#climatewise_run_commercial
+climatewise_run_commercial
 
     

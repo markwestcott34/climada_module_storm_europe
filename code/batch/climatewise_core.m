@@ -95,7 +95,9 @@ if ~exist('wsgsmax_diff_file','var'),            wsgsmax_diff_file            =[
 % WISC_GBR_eur_WS_CC01, WS_hazard_CC_ext='_CC01'
 if isempty(WS_hazard_CC_ext),WS_hazard_CC_ext='';end % default='', standard hazard set(s)
 if isempty(TC_hazard_CC_ext),TC_hazard_CC_ext='';end % default='', standard hazard set(s)
-%
+if isempty(TS_hazard_CC_ext),TS_hazard_CC_ext='';end % default='', standard hazard set(s)
+
+
 % set some parameters for WS CC hazard sets
 if isempty(WS_time_i),WS_time_i=4;end % make sure this corresponds to WS_hazard_CC_ext
 if isempty(wsgsmax_diff_file),wsgsmax_diff_file = [climada_global.data_dir filesep 'ClimateWise' filesep 'wsgsmax_diff.nc'];end

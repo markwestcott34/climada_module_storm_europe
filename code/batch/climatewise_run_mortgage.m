@@ -4,11 +4,11 @@
 exposure_files={
     'GBR_barclays_sector_agg.xlsx' % GBR_ to indicate GBR only (speedup, must be listed first)
     'GBR_hsbc_sector_agg.xlsx'
-  %  'GBR_lloyds_sector_agg.xlsx'
-  %  'GBR_nationwide_sector_agg.xlsx'
-  %  'GBR_rbs_sector_agg.xlsx'
-  %  'GBR_santander_sector_agg.xlsx'
-  %  'GBR_yorkshire_sector_agg.xlsx' % for tests, use only first and last
+    'GBR_lloyds_sector_agg.xlsx'
+    'GBR_nationwide_sector_agg.xlsx'
+    'GBR_rbs_sector_agg.xlsx'
+    'GBR_santander_sector_agg.xlsx'
+    'GBR_yorkshire_sector_agg.xlsx' % for tests, use only first and last
     };
 
 %% Climate change scenarios
@@ -70,7 +70,7 @@ for time_i=1:length(climate_scenario_times)
   clear hazard % to be on the safe side
   year = climate_scenario_times(time_i);
   WS_time_i = time_i; % Which time period to read from wsgsmax_diff_file
-  WS_hazard_CC_ext = sprintf('_rcp45_CC%4.4i',year);
+  WS_hazard_CC_ext = sprintf('_rcp45_%4.4i',year);
   
   fprintf('\n\n*** GBR_*.xlsx RCP 4.5 ***\n\n');
 
@@ -102,7 +102,7 @@ for time_i=1:length(climate_scenario_times)
   clear hazard % to be on the safe side
   year = climate_scenario_times(time_i);
   WS_time_i = time_i; % Which time period to read from wsgsmax_diff_file
-  WS_hazard_CC_ext = sprintf('_rcp85_CC%4.4i',year);
+  WS_hazard_CC_ext = sprintf('_rcp85_%4.4i',year);
 
   fprintf('\n\n*** GBR_*.xlsx risk climate change RCP 8.5 ***\n\n');
 

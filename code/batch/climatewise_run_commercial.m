@@ -1,20 +1,20 @@
 
 
-% second commercial exposures (WS and TC)
+% second commercial exposures (WS, TC and TS)
 % =======================================
 
 exposure_files={
-  %  '02.xlsx' % follow the global exposures
-  %  '03.xlsx'
-  %  '05.xlsx'
-  %  '08.xlsx' % use this for tests
-  %  '12.xlsx'
-  %  '13.xlsx'
-  %  '14.xlsx'
-  %  '15.xlsx'
-  %  '16.xlsx'
-  %  '23.xlsx'
-  %  '24.xlsx'
+    '02.xlsx' % follow the global exposures
+    '03.xlsx'
+    '05.xlsx'
+    '08.xlsx' % use this for tests
+    '12.xlsx'
+    '13.xlsx'
+    '14.xlsx'
+    '15.xlsx'
+    '16.xlsx'
+    '23.xlsx'
+    '24.xlsx'
     '26.xlsx' % and this for tests, too
     };
 
@@ -23,7 +23,6 @@ Percentage_Of_Value_Flag=0;
 plot_edfs = 0;
 
 climate_scenario_times=[2015 2025 2035 2045 2055]; % reference 1960-1990
-
 
 # Set up summary output file
 
@@ -59,8 +58,8 @@ scenario_name = 'baseline'
 fprintf('\n\n*** Risk today ***\n\n');
 
 
-climatewise_core % call the core function
-climatewise_write_eds_to_csv % write out ED curves to CSV and populate cells with summary results
+%climatewise_core % call the core function
+%climatewise_write_eds_to_csv % write out ED curves to CSV and populate cells with summary results
 
 
 % RCP45
@@ -71,19 +70,22 @@ scenario_name = 'rcp45';
 
 for time_i=1:length(climate_scenario_times)
   clear hazard % to be on the safe side
-  WS_hazard_CC_ext = sprintf('_rcp45_CC%4.4i',climate_scenario_times(time_i)); % make sure WS_time_i matches
-  TC_hazard_CC_ext = sprintf('_rcp45_CC%4.4i',climate_scenario_times(time_i)); % make sure WS_time_i matches
-  TS_hazard_CC_ext = sprintf('_rcp45_CC%4.4i_SLR',climate_scenario_times(time_i)); % make sure WS_time_i matches
+  WS_hazard_CC_ext = sprintf('_rcp45_%4.4i',climate_scenario_times(time_i)); % make sure WS_time_i matches
+  TC_hazard_CC_ext = sprintf('_rcp45_%4.4i',climate_scenario_times(time_i)); % make sure WS_time_i matches
+  TS_hazard_CC_ext = sprintf('_rcp45_%4.4i_SLR',climate_scenario_times(time_i)); % make sure WS_time_i matches
 
-  WS_time_i = time_i % Which time period to read from wsgsmax_diff_file
+  WS_time_i = time_i; % Which time period to read from wsgsmax_diff_file
   year = climate_scenario_times(time_i);
   
-  fprintf('\n\n*** Commercial RCP 4.5 ***\n\n');
+  fprintf('\n\n*** Commercial RCP 4.5 No adaptation ***\n\n');
 
   # Without adaptation 
   adaptation = '';
   climatewise_core % call the core function
   climatewise_write_eds_to_csv % write out ED curves to CSV and populate cells with summary results
+  
+  fprintf('\n\n*** Commercial RCP 4.5 Adaptation ***\n\n');
+
   
   # With adaptation
   adaptation = '-adaptation';
@@ -102,21 +104,25 @@ scenario_name = 'rcp85';
 
 for time_i=1:length(climate_scenario_times)
   clear hazard % to be on the safe side
-  WS_hazard_CC_ext = sprintf('_rcp45_CC%4.4i',climate_scenario_times(time_i)); % make sure WS_time_i matches
-  TC_hazard_CC_ext = sprintf('_rcp45_CC%4.4i',climate_scenario_times(time_i)); % make sure WS_time_i matches
-  TS_hazard_CC_ext = sprintf('_rcp85_CC%4.4i_SLR',climate_scenario_times(time_i)); % make sure WS_time_i matches
+  WS_hazard_CC_ext = sprintf('_rcp85_%4.4i',climate_scenario_times(time_i)); % make sure WS_time_i matches
+  TC_hazard_CC_ext = sprintf('_rcp85_%4.4i',climate_scenario_times(time_i)); % make sure WS_time_i matches
+  TS_hazard_CC_ext = sprintf('_rcp85_%4.4i_SLR',climate_scenario_times(time_i)); % make sure WS_time_i matches
 
   
-  WS_time_i = time_i % Which time period to read from wsgsmax_diff_file
+  WS_time_i = time_i; % Which time period to read from wsgsmax_diff_file
 
   year = climate_scenario_times(time_i);
   
-  fprintf('\n\n*** Commercial RCP 4.5 ***\n\n');
+  fprintf('\n\n*** Commercial RCP 8.5 No adaptation ***\n\n');
 
   # Without adaptation 
   adaptation = '';
   climatewise_core % call the core function
   climatewise_write_eds_to_csv % write out ED curves to CSV and populate cells with summary results
+  
+  
+  fprintf('\n\n*** Commercial RCP 8.5 Adaptation ***\n\n');
+
   
   # With adaptation
   adaptation = '-adaptation';
